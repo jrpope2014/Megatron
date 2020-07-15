@@ -1,0 +1,7 @@
+version: "3.8"
+  services:
+    julia_notebook:
+      build:
+        context: .
+        dockerfile: Dockerfile-Jupyter-Julia
+      image: ${IMAGE:-jupyterlab}:${TAG:-julia}

@@ -1,0 +1,13 @@
+FROM fedora
+
+RUN dnf upgrade -y && dnf install -y passwd julia python3 bzip2 python3-pip
+EXPOSE 8888
+RUN useradd -ms /bin/bash jupyter \
+    && mkdir -p /home/jupyter/code \
+    && chown -R jupyter:jupyter /home/jupyter
+User jupyter
+ENV PATH="${PATH}:/home/jupyter/.local/bin"
+WORKDIR /home/jupyter
+RUN cd && pip3 install --user jupyterlab
+
+CMD jupyter lab --ip=0.0.0.0
