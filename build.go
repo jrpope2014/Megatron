@@ -48,6 +48,22 @@ func createStack(cft *cf.Client, templateBody, stackName *string) *cf.CreateStac
 	return resp
 }
 
+/*
+ * Example Delete Stack Code:
+ * https://github.com/awsdocs/aws-doc-sdk-examples/blob/main/go/cloudformation/DeleteStack/DeleteStack.go
+ */
+func deleteStack(cft *cf.Client, stackName *string) *cf.DeleteStackOutput {
+	resp, err := cft.DeleteStack(
+		context.TODO(),
+		&cf.DeleteStackInput{StackName: stackName})
+
+	if err != nil {
+		log.Fatalf("DeleteStack failed with error: %s", err)
+	}
+
+	return resp
+}
+
 func main() {
 	cfg, err := config.LoadDefaultConfig(context.TODO())
 	if err != nil {
@@ -82,5 +98,13 @@ func main() {
 		resp := createStack(cft, &templateBody, &stackName)
 
 		log.Printf("Stack Creation Respose: %s", resp.ResultMetadata)
+	}
+
+	if command == "DELETE" {
+		stackName := "MegatronTestStack"
+
+		resp := deleteStack(cft, &stackName)
+
+		log.Printf("Stack Deletion Response: %s", resp.ResultMetadata)
 	}
 }
