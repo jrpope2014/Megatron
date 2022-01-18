@@ -1,0 +1,19 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Megatron Sample Template
+Resources:
+  EC2DevelopmentInstance:
+    Type: "AWS::EC2::Instance"
+    Properties: 
+      ImageId: "ami-0d5d1a3aa3516231f" #Amazon Linux 2 AMI
+      InstanceType: t2.micro
+      KeyName: megatron
+      SecurityGroups: ["Megatron"]
+      # For now, use the default block device mapping
+      # BlockDeviceMappings:
+      #   -
+      #     DeviceName: /dev/xvda
+      #     Ebs:
+      #       VolumeType: io1
+      #       Iops: 200
+      #       DeleteOnTermination: false
+      #       VolumeSize: 20

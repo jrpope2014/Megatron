@@ -79,6 +79,8 @@ func main() {
 
 		templateBody := string(template)
 
-		createStack(cft, &templateBody, &stackName)
+		resp := createStack(cft, &templateBody, &stackName)
+
+		log.Printf("Stack Creation Respose: %s", resp.ResultMetadata)
 	}
 }
