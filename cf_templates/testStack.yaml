@@ -4,7 +4,7 @@ Resources:
   EC2DevelopmentInstance:
     Type: "AWS::EC2::Instance"
     Properties: 
-      ImageId: "ami-0d5d1a3aa3516231f" #Amazon Linux 2 AMI
+      ImageId: "ami-03368e982f317ae48" #Amazon Linux 2 AMI - US East 1
       InstanceType: t2.micro
       KeyName: megatron
       SecurityGroups: ["Megatron"]
