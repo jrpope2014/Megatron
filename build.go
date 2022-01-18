@@ -2,7 +2,9 @@ package main
 
 import (
 	"context"
+	"flag"
 	"fmt"
+	"io/ioutil"
 	"log"
 
 	"github.com/aws/aws-sdk-go-v2/config"
@@ -10,10 +12,9 @@ import (
 )
 
 /*
- * Example Create Stack Code:
- * https://github.com/awsdocs/aws-doc-sdk-examples/blob/main/go/cloudformation/CreateStack/CreateStack.go
+ * Example List Stack Code:
+ * https://github.com/awsdocs/aws-doc-sdk-examples/blob/main/go/cloudformation/ListStacks/ListStacks.go
  */
-
 func listStacks(cft *cf.Client, lsi cf.ListStacksInput) {
 	resp, err := cft.ListStacks(context.TODO(), &lsi)
 
@@ -30,15 +31,54 @@ func listStacks(cft *cf.Client, lsi cf.ListStacksInput) {
 	fmt.Println("-----------")
 }
 
+/*
+ * Example Create Stack Code:
+ * https://github.com/awsdocs/aws-doc-sdk-examples/blob/main/go/cloudformation/CreateStack/CreateStack.go
+ */
+func createStack(cft *cf.Client, templateBody, stackName *string) *cf.CreateStackOutput {
+	resp, err := cft.CreateStack(context.TODO(), &cf.CreateStackInput{
+		TemplateBody: templateBody,
+		StackName:    stackName,
+	})
+
+	if err != nil {
+		log.Fatalf("CreateStack failed with error: %s", err)
+	}
+
+	return resp
+}
+
 func main() {
 	cfg, err := config.LoadDefaultConfig(context.TODO())
 	if err != nil {
 		log.Panic(err)
 	}
 
+	var command string
+	flag.StringVar(&command, "c", "LIST", "Megatron command to use")
+	flag.Parse()
+
+	fmt.Printf("Command has a value of: %s\n", command)
+
 	// Create client for CLI
 	cft := cf.NewFromConfig(cfg)
 
-	// fmt.Println(cft.ListStacks(context.TODO(), &cf.ListStacksInput{}))
-	listStacks(cft, cf.ListStacksInput{})
+	if command == "LIST" {
+		// fmt.Println(cft.ListStacks(context.TODO(), &cf.ListStacksInput{}))
+		listStacks(cft, cf.ListStacksInput{})
+	}
+
+	if command == "CREATE" {
+		stackName := "MegatronTestStack"
+
+		template, err := ioutil.ReadFile("cf_templates/testStack.yaml")
+
+		if err != nil {
+			log.Fatalf("Failed to read template file with error: %s", err)
+		}
+
+		templateBody := string(template)
+
+		createStack(cft, &templateBody, &stackName)
+	}
 }
