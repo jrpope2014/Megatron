@@ -1,11 +1,16 @@
 package main
 
 import (
+	"bytes"
 	"context"
+	"encoding/base64"
 	"flag"
 	"fmt"
 	"io/ioutil"
 	"log"
+	"os"
+	"strings"
+	"text/template"
 
 	"github.com/aws/aws-sdk-go-v2/config"
 	cf "github.com/aws/aws-sdk-go-v2/service/cloudformation"
@@ -64,6 +69,11 @@ func deleteStack(cft *cf.Client, stackName *string) *cf.DeleteStackOutput {
 	return resp
 }
 
+type UserData struct {
+	Script      string
+	ScriptLines []string
+}
+
 func main() {
 	cfg, err := config.LoadDefaultConfig(context.TODO())
 	if err != nil {
@@ -101,10 +111,46 @@ func main() {
 	}
 
 	if command == "DELETE" {
-		stackName := "MegatronTestStack"
+		stackName := "MegatronTemplateTestStack"
 
 		resp := deleteStack(cft, &stackName)
 
 		log.Printf("Stack Deletion Response: %s", resp.ResultMetadata)
+	}
+
+	if command == "TEMPLATE_TEST" {
+		templatePath := "cf_templates/templateTest.yaml"
+		t, err := template.ParseFiles(templatePath)
+		var body bytes.Buffer
+
+		if err != nil {
+			log.Fatalf("Failed to read %s with error %s", templatePath, err)
+		}
+
+		data, err := os.ReadFile("user-data.sh")
+
+		encodedData := base64.StdEncoding.EncodeToString(data)
+
+		if err != nil {
+			log.Fatalf("%s", err)
+		}
+
+		testScript := UserData{
+			Script:      encodedData,
+			ScriptLines: strings.Split(string(encodedData), "\n"),
+		}
+
+		err = t.Execute(&body, testScript)
+
+		if err != nil {
+			log.Fatalf("%s", err)
+		}
+
+		templateBody := body.String()
+
+		fmt.Println(testScript.ScriptLines)
+		fmt.Println(templateBody)
+		templateName := "MegatronTemplateTestStack"
+		createStack(cft, &templateBody, &templateName)
 	}
 }
