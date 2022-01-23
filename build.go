@@ -3,13 +3,10 @@ package main
 import (
 	"bytes"
 	"context"
-	"encoding/base64"
 	"flag"
 	"fmt"
 	"io/ioutil"
 	"log"
-	"os"
-	"strings"
 	"text/template"
 
 	"github.com/aws/aws-sdk-go-v2/config"
@@ -69,11 +66,6 @@ func deleteStack(cft *cf.Client, stackName *string) *cf.DeleteStackOutput {
 	return resp
 }
 
-type UserData struct {
-	Script      string
-	ScriptLines []string
-}
-
 func main() {
 	cfg, err := config.LoadDefaultConfig(context.TODO())
 	if err != nil {
@@ -127,17 +119,14 @@ func main() {
 			log.Fatalf("Failed to read %s with error %s", templatePath, err)
 		}
 
-		data, err := os.ReadFile("user-data.sh")
-
-		encodedData := base64.StdEncoding.EncodeToString(data)
+		data, err := loadEncodedUserData("user-data.sh")
 
 		if err != nil {
 			log.Fatalf("%s", err)
 		}
 
 		testScript := UserData{
-			Script:      encodedData,
-			ScriptLines: strings.Split(string(encodedData), "\n"),
+			Script: data,
 		}
 
 		err = t.Execute(&body, testScript)
@@ -148,7 +137,6 @@ func main() {
 
 		templateBody := body.String()
 
-		fmt.Println(testScript.ScriptLines)
 		fmt.Println(templateBody)
 		templateName := "MegatronTemplateTestStack"
 		createStack(cft, &templateBody, &templateName)
