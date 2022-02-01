@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"encoding/base64"
 	"log"
 	"os"
@@ -8,7 +9,8 @@ import (
 )
 
 type Megatron struct {
-	cloudFormationTemplate string
+	CloudFormationTemplate string
+	UserData               string
 }
 
 func getCloudFormationTemplate(templatePath string) (*template.Template, error) {
@@ -28,7 +30,7 @@ func loadEncodedUserData(userDataPath string) (string, error) {
 	return encodedData, err
 }
 
-func NewMegatron(templatePath, userDataPath string) (Megatron, error) {
+func NewMegatron(templatePath, userDataPath string) Megatron {
 
 	t, err := getCloudFormationTemplate(templatePath)
 
@@ -36,9 +38,26 @@ func NewMegatron(templatePath, userDataPath string) (Megatron, error) {
 		log.Fatal(err)
 	}
 
+	userData, err := loadEncodedUserData(userDataPath)
+
 	m := Megatron{
-		cloudFormationTemplate: templatePath,
+		CloudFormationTemplate: templatePath,
+		UserData:               userData,
 	}
 
-	return m, nil
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	var cft bytes.Buffer
+
+	err = t.Execute(&cft, m)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	m.CloudFormationTemplate = cft.String()
+
+	return m
 }

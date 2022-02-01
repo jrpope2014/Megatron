@@ -9,6 +9,4 @@ Resources:
       KeyName: megatron
       SecurityGroups: ["Megatron"]
       UserData: |
-        {{range $line := .ScriptLines}}
-        {{$line}}
-        {{end}}
+        {{.UserData}}

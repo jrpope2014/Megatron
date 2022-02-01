@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bytes"
 	"context"
 	"flag"
 	"fmt"
@@ -111,33 +110,12 @@ func main() {
 
 	if command == "TEMPLATE_TEST" {
 		templatePath := "cf_templates/templateTest.yaml"
-		t, err := getCloudFormationTemplate(templatePath)
-		var body bytes.Buffer
+		userDataPath := "user-data.sh"
 
-		if err != nil {
-			log.Fatalf("Failed to read %s with error %s", templatePath, err)
-		}
+		m := NewMegatron(templatePath, userDataPath)
 
-		data, err := loadEncodedUserData("user-data.sh")
-
-		if err != nil {
-			log.Fatalf("%s", err)
-		}
-
-		testScript := UserData{
-			Script: data,
-		}
-
-		err = t.Execute(&body, testScript)
-
-		if err != nil {
-			log.Fatalf("%s", err)
-		}
-
-		templateBody := body.String()
-
-		fmt.Println(templateBody)
+		fmt.Println(m.CloudFormationTemplate)
 		templateName := "MegatronTemplateTestStack"
-		createStack(cft, &templateBody, &templateName)
+		createStack(cft, &m.CloudFormationTemplate, &templateName)
 	}
 }
