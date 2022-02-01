@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
-	"text/template"
 
 	"github.com/aws/aws-sdk-go-v2/config"
 	cf "github.com/aws/aws-sdk-go-v2/service/cloudformation"
@@ -112,7 +111,7 @@ func main() {
 
 	if command == "TEMPLATE_TEST" {
 		templatePath := "cf_templates/templateTest.yaml"
-		t, err := template.ParseFiles(templatePath)
+		t, err := getCloudFormationTemplate(templatePath)
 		var body bytes.Buffer
 
 		if err != nil {
