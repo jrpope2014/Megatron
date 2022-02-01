@@ -4,7 +4,6 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	"io/ioutil"
 	"log"
 
 	"github.com/aws/aws-sdk-go-v2/config"
@@ -76,6 +75,9 @@ func main() {
 
 	fmt.Printf("Command has a value of: %s\n", command)
 
+	defaultTemplatePath := "cf_templates/testStack.yaml"
+	defaultUserDataPath := "user-data.sh"
+
 	// Create client for CLI
 	cft := cf.NewFromConfig(cfg)
 
@@ -87,15 +89,9 @@ func main() {
 	if command == "CREATE" {
 		stackName := "MegatronTestStack"
 
-		template, err := ioutil.ReadFile("cf_templates/testStack.yaml")
+		m := NewMegatron(defaultTemplatePath, defaultUserDataPath)
 
-		if err != nil {
-			log.Fatalf("Failed to read template file with error: %s", err)
-		}
-
-		templateBody := string(template)
-
-		resp := createStack(cft, &templateBody, &stackName)
+		resp := createStack(cft, &m.CloudFormationTemplate, &stackName)
 
 		log.Printf("Stack Creation Respose: %s", resp.ResultMetadata)
 	}
@@ -108,14 +104,4 @@ func main() {
 		log.Printf("Stack Deletion Response: %s", resp.ResultMetadata)
 	}
 
-	if command == "TEMPLATE_TEST" {
-		templatePath := "cf_templates/templateTest.yaml"
-		userDataPath := "user-data.sh"
-
-		m := NewMegatron(templatePath, userDataPath)
-
-		fmt.Println(m.CloudFormationTemplate)
-		templateName := "MegatronTemplateTestStack"
-		createStack(cft, &m.CloudFormationTemplate, &templateName)
-	}
 }

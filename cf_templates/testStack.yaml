@@ -8,6 +8,7 @@ Resources:
       InstanceType: t2.micro
       KeyName: megatron
       SecurityGroups: ["Megatron"]
+      UserData: {{.UserData}}
       # For now, use the default block device mapping
       # BlockDeviceMappings:
       #   -
