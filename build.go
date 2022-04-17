@@ -99,7 +99,7 @@ func main() {
 	}
 
 	if command == "DELETE" {
-		stackName := "MegatronTemplateTestStack"
+		stackName := "MegatronTestStack"
 
 		resp := deleteStack(cft, &stackName)
 
