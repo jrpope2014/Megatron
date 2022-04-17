@@ -69,8 +69,10 @@ func main() {
 		log.Panic(err)
 	}
 
+	validCommands := []string{"LIST", "CREATE", "DELETE"}
+
 	var command string
-	flag.StringVar(&command, "c", "LIST", "Megatron command to use")
+	flag.StringVar(&command, "c", "LIST", fmt.Sprintf("Megatron command to use, valid commands are: %v", validCommands))
 	flag.Parse()
 
 	fmt.Printf("Command has a value of: %s\n", command)
