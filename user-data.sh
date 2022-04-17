@@ -2,8 +2,7 @@
 
 yum update -y
 
-yum install -y python3 \
-    git
+amazon-linux-extras install -y python3.8
 
 
 python3 -m pip install ansible
